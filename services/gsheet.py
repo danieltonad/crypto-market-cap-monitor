@@ -43,5 +43,16 @@ def update_google_sheet(data):
             
     except Exception as err:
         app_log(title="Error", msg=str(err))
-            
-    # sheet.update('A1', [['Symbol', 'Highest Volume', 'Date']] + data)
+      
+    
+
+
+def update_sheet_gspread(data):
+    from gspread import service_account
+    from pandas import DataFrame
+    client = service_account(settings.GSHEET_PATH)
+    sheet = client.open("MarketCap")
+    worksheet = sheet.get_worksheet(0)
+    worksheet.clear()
+    worksheet.update(range_name="A1" ,values=[['Symbol', 'Highest Volume', 'Date']] + data)
+    
