@@ -1,5 +1,5 @@
 
 
-def app_log(msg: str, error: str):
-    print(f"[{msg}] => {str(error)}")
+def app_log(title: str, msg: str):
+    print(f"[{title}] => {str(msg)}")
     

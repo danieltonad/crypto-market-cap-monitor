@@ -1,7 +1,7 @@
-from services.finance import fetch_stock_data
+from services.finance import fetch_stocks_data
 
 
-print(fetch_stock_data())
+print(fetch_stocks_data())
 
 
 
