@@ -29,6 +29,4 @@ def generate_report():
     df['profit_loss'] = df['price'] * df['amount']
     df.to_csv('crypto_trading_report.csv')
 
-# Automate trading and report generation
-trade()
-generate_report()
+
