@@ -24,7 +24,7 @@ def fetch_available_symbols(limit: bool | int = False):
             # stream csv file
             csv_data = read_csv(io.StringIO(respnse.text))
             
-            symbols_name = "Name"
+            symbols_name = "Symbol"
             if symbols_name in csv_data.columns:
                 symbols: list = csv_data[symbols_name].tolist() + ['AAPL']
                 return symbols if not limit else symbols[:limit]
@@ -39,12 +39,14 @@ def fetch_available_symbols(limit: bool | int = False):
 def fetch_stocks_data():
     symbols = fetch_available_symbols()
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
-    # get_highest_volume_stocks_above_market_cap('AAPL')
+    
     
     # multi-thread stock data details
-    with ThreadPoolExecutor() as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         app_log(title="INFO", msg="Fetching data..")
-        futures = [executor.execute(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
+        futures = [executor.submit(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
+        for future in as_completed(futures):
+            pass
     
     return results
     
