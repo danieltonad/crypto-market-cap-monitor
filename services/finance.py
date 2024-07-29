@@ -9,11 +9,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 
-MAX_VOLUME_50 = 50_000_000_000
-MAX_VOLUME_20 = 20_000_000_000
-
 RESULT_LOCK = threading.Lock()
-
+PRINT_LOCK = threading.Lock()
 
 results = []
 
@@ -46,8 +43,7 @@ def fetch_stocks_data():
     # multi-thread stock data details
     with ThreadPoolExecutor() as executor:
         app_log(title="INFO", msg="Fetching data..")
-        futures = [executor.submit(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
-        app_log(title="INFO", msg="completely fetched data..")
+        executor.map(get_highest_volume_stocks_above_market_cap, symbols)
     
     return results
     
@@ -58,13 +54,14 @@ def get_highest_volume_stocks_above_market_cap(symbol: str):
     market_cap = int(ticker.info.get('marketCap', 0))
     try:
         # print(f"{market_cap:,}")
-        if market_cap >= MAX_VOLUME_50:
+        if market_cap >= settings.MAX_VOLUME_50:
             history = ticker.history(period="max")
             highest_volume = history['Volume'].max().item()
             highest_volume_date = history['Volume'].idxmax().to_pydatetime().strftime("%m:%d:%Y-%H:%M:%S")
             with RESULT_LOCK:
                 results.append([symbol, highest_volume, highest_volume_date])
-        app_log(title="FETCHED", msg=f"{symbol} data")
+            with PRINT_LOCK:
+                app_log(title="FETCHED", msg=f"{symbol}")
     except Exception as e:
         app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
     
