@@ -58,7 +58,7 @@ def get_highest_volume_stocks_above_market_cap(symbol: str):
     market_cap = int(ticker.info.get('marketCap', 0))
     try:
         # print(f"{market_cap:,}")
-        if market_cap >= settings.MAX_VOLUME_50:
+        if market_cap >= settings.MAX_VOLUME:
             history = ticker.history(period="max")
             highest_volume = history['Volume'].max().item()
             highest_volume_date = history['Volume'].idxmax().to_pydatetime().strftime("%m:%d:%Y-%H:%M:%S")
