@@ -4,8 +4,6 @@ from settings import settings
 from logger import app_log
 from pandas import read_csv
 import io, threading
-from random import randint
-from time import sleep
 from concurrent.futures import ThreadPoolExecutor, as_completed
 # from pytickersymbols import PyTickerSymbols
 
@@ -26,7 +24,7 @@ def fetch_available_symbols(limit: bool | int = False):
             
             symbols_name = "Symbol"
             if symbols_name in csv_data.columns:
-                symbols: list = csv_data[symbols_name].tolist() + ['AAPL']
+                symbols: list = csv_data[symbols_name].tolist()
                 return symbols if not limit else symbols[:limit]
             else:
                 raise ValueError(f"Unable to locate `{symbols_name}` in csv_data")
@@ -37,35 +35,33 @@ def fetch_available_symbols(limit: bool | int = False):
 
 # Fetch stock data
 def fetch_stocks_data():
-    symbols = fetch_available_symbols()
+    symbols = fetch_available_symbols(limit=300)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     
     # multi-thread stock data details
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor() as executor:
         app_log(title="INFO", msg="Fetching data..")
-        futures = [executor.submit(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
+        futures = [executor.submit(get_highest_volume_stocks_above_market_cap, symbol, i) for i, symbol in enumerate(symbols)]
         for future in as_completed(futures):
             pass
     
     return results
     
     
-def get_highest_volume_stocks_above_market_cap(symbol: str):
-    global result
-    sleep(randint(0,3)) # random sleep to avoid rate limit
+def get_highest_volume_stocks_above_market_cap(symbol: str, count: int):
+    global results
     ticker = yf.Ticker(symbol)
     market_cap = int(ticker.info.get('marketCap', 0))
     try:
-        # print(f"{market_cap:,}")
         if market_cap >= settings.MAX_VOLUME:
             history = ticker.history(period="max")
-            highest_volume = history['Volume'].max().item()
+            highest_volume = int(history['Volume'].max())
             highest_volume_date = history['Volume'].idxmax().to_pydatetime().strftime("%m:%d:%Y-%H:%M:%S")
             with RESULT_LOCK:
                 results.append([symbol, highest_volume, highest_volume_date])
                 
-            app_log(title="FETCHED", msg=f"{symbol}")
+            app_log(title="FETCHED", msg=f"{symbol} [{count:,}]")
     except Exception as e:
         app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
     
