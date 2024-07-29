@@ -44,14 +44,14 @@ def fetch_stocks_data():
     # multi-thread stock data details
     with ThreadPoolExecutor() as executor:
         app_log(title="INFO", msg="Fetching data..")
-        executor.map(get_highest_volume_stocks_above_market_cap, symbols)
+        futures = [executor.execute(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
     
     return results
     
     
 def get_highest_volume_stocks_above_market_cap(symbol: str):
     global result
-    sleep(randint(1,4)) # random sleep to avoid rate limit
+    sleep(randint(0,3)) # random sleep to avoid rate limit
     ticker = yf.Ticker(symbol)
     market_cap = int(ticker.info.get('marketCap', 0))
     try:
