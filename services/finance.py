@@ -45,12 +45,8 @@ def fetch_stocks_data():
     
     # multi-thread stock data details
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
         app_log(title="INFO", msg="Fetching data..")
-        
-        # for future in as_completed(futures):
-        #     pass
-        
+        futures = [executor.submit(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
         app_log(title="INFO", msg="completely fetched data..")
     
     return results
