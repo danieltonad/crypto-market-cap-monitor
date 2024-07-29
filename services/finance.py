@@ -5,12 +5,13 @@ from logger import app_log
 from pandas import read_csv
 import io, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pytickersymbols import PyTickerSymbols
+# from pytickersymbols import PyTickerSymbols
 
 
 
 MAX_VOLUME_50 = 50_000_000_000
 MAX_VOLUME_20 = 20_000_000_000
+
 RESULT_LOCK = threading.Lock()
 
 
@@ -40,16 +41,17 @@ def fetch_available_symbols(limit: bool | int = False):
 def fetch_stocks_data():
     symbols = fetch_available_symbols()
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
-    get_highest_volume_stocks_above_market_cap('AAPL')
+    # get_highest_volume_stocks_above_market_cap('AAPL')
+    
     # multi-thread stock data details
-    # with ThreadPoolExecutor() as executor:
-    #     futures = [executor.submit(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
-    #     app_log(title="INFO", msg="Fetching data..")
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
+        app_log(title="INFO", msg="Fetching data..")
         
-    #     for future in as_completed(futures):
-    #         pass
+        # for future in as_completed(futures):
+        #     pass
         
-    #     app_log(title="INFO", msg="completely fetched data..")
+        app_log(title="INFO", msg="completely fetched data..")
     
     return results
     
@@ -59,7 +61,7 @@ def get_highest_volume_stocks_above_market_cap(symbol: str):
     ticker = yf.Ticker(symbol)
     market_cap = int(ticker.info.get('marketCap', 0))
     try:
-        print(f"{market_cap:,}")
+        # print(f"{market_cap:,}")
         if market_cap >= MAX_VOLUME_50:
             history = ticker.history(period="max")
             highest_volume = history['Volume'].max().item()

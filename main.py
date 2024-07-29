@@ -1,15 +1,17 @@
-from fastapi import FastAPI
-from settings import settings
+from services.finance import fetch_stocks_data
+from services.gsheet import update_sheet_gspread
 
 
-app = FastAPI(title=settings.APP_NAME)
+# fetch stock data 
+data: list = fetch_stocks_data()
+data = [['AAPL', 7421640800, '09:29:2000-00:00:00']]
+
+update_sheet_gspread(data=data)
 
 
-@app.get('/')
-async def root():
-    from services.finance import fetch_stocks_data
-    from services.gsheet import update_sheet_gspread
-    
-    update_sheet_gspread(data=['AAPL', 7421640800, '09:29:2000-00:00:00'])
-    
-    return ""
+# print()
+
+
+# Automate trading and report generation
+# trade()
+# generate_report()
