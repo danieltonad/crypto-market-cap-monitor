@@ -4,13 +4,14 @@ from settings import settings
 from logger import app_log
 from pandas import read_csv
 import io, threading
+from random import randint
+from time import sleep
 from concurrent.futures import ThreadPoolExecutor, as_completed
 # from pytickersymbols import PyTickerSymbols
 
 
 
 RESULT_LOCK = threading.Lock()
-PRINT_LOCK = threading.Lock()
 
 results = []
 
@@ -50,6 +51,7 @@ def fetch_stocks_data():
     
 def get_highest_volume_stocks_above_market_cap(symbol: str):
     global result
+    sleep(randint(1,4)) # random sleep to avoid rate limit
     ticker = yf.Ticker(symbol)
     market_cap = int(ticker.info.get('marketCap', 0))
     try:
@@ -60,8 +62,8 @@ def get_highest_volume_stocks_above_market_cap(symbol: str):
             highest_volume_date = history['Volume'].idxmax().to_pydatetime().strftime("%m:%d:%Y-%H:%M:%S")
             with RESULT_LOCK:
                 results.append([symbol, highest_volume, highest_volume_date])
-            with PRINT_LOCK:
-                app_log(title="FETCHED", msg=f"{symbol}")
+                
+            app_log(title="FETCHED", msg=f"{symbol}")
     except Exception as e:
         app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
     
