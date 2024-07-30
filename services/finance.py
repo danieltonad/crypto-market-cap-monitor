@@ -61,7 +61,7 @@ def get_highest_volume_stocks_above_market_cap(symbol: str, count: int):
             with RESULT_LOCK:
                 results.append([symbol, highest_volume, highest_volume_date])
                 
-            app_log(title="FETCHED", msg=f"{symbol} [{count:,}]")
+            # app_log(title="FETCHED", msg=f"{symbol} [{count:,}]")
     except Exception as e:
         app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
     
