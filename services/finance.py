@@ -52,11 +52,11 @@ def fetch_stocks_data():
 def get_highest_volume_stocks_above_market_cap(symbol: str, count: int):
     global results
     ticker = yf.Ticker(symbol)
-    market_cap = int(ticker.info.get('marketCap', 0))
+    market_cap = float(ticker.info.get('marketCap', 0.0))
     try:
         if market_cap >= settings.MAX_VOLUME:
             history = ticker.history(period="max")
-            highest_volume = int(history['Volume'].max())
+            highest_volume = float(history['Volume'].max())
             highest_volume_date = history['Volume'].idxmax().to_pydatetime().strftime("%m:%d:%Y-%H:%M:%S")
             with RESULT_LOCK:
                 results.append([symbol, highest_volume, highest_volume_date])
