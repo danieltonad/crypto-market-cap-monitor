@@ -47,7 +47,7 @@ class MarketCap(Settings):
         self.app_log(title="INFO", msg=f"Symbols: {self.total:,}")
         
         # multi-thread stock data details
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=20) as executor:
             self.app_log(title="INFO", msg="Fetching data..")
             futures = [executor.submit(self.__get_highest_volume_stocks_above_market_cap, symbol) for symbol in symbols]
                     
