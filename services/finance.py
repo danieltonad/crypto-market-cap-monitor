@@ -42,7 +42,7 @@ class MarketCap(Settings):
 
     # Fetch stock data
     def fetch_stocks_data(self) -> list:
-        symbols = self.__fetch_available_symbols(limit=300)
+        symbols = self.__fetch_available_symbols()
         self.total = len(symbols)
         self.app_log(title="INFO", msg=f"Symbols: {self.total:,}")
         
@@ -70,8 +70,8 @@ class MarketCap(Settings):
                 highest_volume_date = history['Volume'].idxmax().to_pydatetime().strftime("%m:%d:%Y-%H:%M:%S")
                 with self.result_lock:
                     self.results.append([symbol, highest_volume, highest_volume_date])
+                    print(f"Fetching data | {self.count:,} of {self.total:,}", end="\r")        
             
-            print(f"Fetching data | {self.count:,}/{self.total:,}", end="\r")        
         except Exception as e:
             self.app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
             
@@ -82,4 +82,5 @@ class MarketCap(Settings):
         worksheet = sheet.get_worksheet(0)
         worksheet.clear()
         worksheet.update(range_name="A1" ,values=[['Symbol', 'Highest Volume', 'Date']] + self.results)
+        self.app_log(title="Completed", msg="Google Sheet Updated!")
     
